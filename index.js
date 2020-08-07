@@ -31,11 +31,15 @@ server.get("/users", (req, res) => {
 server.get("/users/:id", (req, res) => {
     const id = req.params.id;
     const user = db.getUserById(id);
-    if(user){
-        res.json(user);
-    } else {
+    if (!user){
         res.status(404).json({ message: "The user with the specified ID does not exist." });
-    }
+    } else if(user){
+        res.json(user);
+    }else {
+        res.status(500).json({
+            errorMessage: "The user information could not be retrieved."
+        });
+   }
 });
 
 server.post("/users", (req, res) => {
@@ -58,7 +62,11 @@ server.post("/users", (req, res) => {
 
 server.put("/users/:id", (req,res) => {
     const user = db.getUserById(req.params.id);
-    if(user){
+    if(!user){
+        res.status(404).json({
+            message: "The user with the specified ID does not exist."
+        });
+    } else if(user){
         if(!req.body.name || !req.body.bio){
             res.status(400).json({
                 errorMessage: "Please provide name and bio for the user."
@@ -68,21 +76,23 @@ server.put("/users/:id", (req,res) => {
                 {name: req.body.name, bio: req.body.bio})
             res.json(res.body);
         }
-        
     }else{
-        res.status(404).json({
-            message: "The user with the specified ID does not exist."
-        });
+        res.status(500).json({ 
+            errorMessage: "The user information could not be modified." });
     }
 });
 
 server.delete("/users/:id", (req, res) => {
     const user = db.getUserById(req.params.id);
-    if(user){
+    if(!user){
+        res.status(404).json({ 
+            message: "The user with the specified ID does not exist." });
+    } else if(user){
         db.deleteUser(req.params.id);
         res.status(204).end();
     } else {
-        res.status(404).json({ 
-            message: "The user with the specified ID does not exist." });
+        res.status(500).json({
+            errorMessage: "The user could not be removed"  
+        });
     }
 })
