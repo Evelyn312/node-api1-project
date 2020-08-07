@@ -38,7 +38,8 @@ function updateUser(id, data){
         ...users[index],
         ...data,
     }
-    return res.json(users[index]);
+    console.log('user ', users[index]);
+    return (users[index]);
 }
 
 function deleteUser(id){
